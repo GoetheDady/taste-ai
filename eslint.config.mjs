@@ -27,12 +27,12 @@ const eslintConfig = [
       'no-extra-semi': 'error', // 禁止不必要的分号
       'max-len': ['error', {
         code: 100,               // 每行代码最多100个字符
-          tabWidth: 2, // tab等于2个空格
-          ignoreComments: true, // 忽略注释
-          ignoreUrls: true, // 忽略URL
-          ignoreStrings: true, // 忽略字符串字面量
-          ignoreTemplateLiterals: true, // 忽略模板字符串
-          ignoreRegExpLiterals: true, // 忽略正则表达式
+        tabWidth: 2,             // tab等于2个空格
+        ignoreComments: true,    // 忽略注释
+        ignoreUrls: true,        // 忽略URL
+        ignoreStrings: true,     // 忽略字符串字面量
+        ignoreTemplateLiterals: true, // 忽略模板字符串
+        ignoreRegExpLiterals: true,   // 忽略正则表达式
       }],
     },
   },
