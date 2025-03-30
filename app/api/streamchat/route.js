@@ -15,9 +15,10 @@ export async function POST(req) {
       model: model || 'Pro/deepseek-ai/DeepSeek-V3', // 网页3的模型选择方案
       messages,
       stream: true, // 启用流式传输
+      timeout: 60000, // 设置60秒超时
+      maxRetries: 3,  // 设置最大重试次数
     });
 
-    // 创建可读流（网页6/7的流处理方案）
     const readableStream = new ReadableStream({
       async start(controller) {
         const encoder = new TextEncoder();

@@ -9,19 +9,15 @@ import Textarea from '@/app/Textarea';
 import generateUUID from '@/lib/uuid';
 import { faUser, faRobot } from '@fortawesome/free-solid-svg-icons';
 import Loading from '@/components/ui/loading';
-import { fetchEventSource } from '@microsoft/fetch-event-source';
+import Markdown from 'react-markdown'
+import { cn } from '@/lib/utils';
+import { useStreamChat } from '@/hooks/useStreamChat';
 
 function Chat() {
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([{
-    id: generateUUID(),
-    role: 'assistant',
-    content: '你好，我是 AI 助手，很高兴为您服务。',
-    reasoning: '初始欢迎消息',
-    isStop: true
-  }]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
+  const { isLoading, streamChat } = useStreamChat();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -34,82 +30,17 @@ function Chat() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    setIsLoading(true);
 
     // 追加用户信息
-    const updatedMessages = [...messages, { id: generateUUID(), role: 'user', content: input }];
+    const userMessage = { id: generateUUID(), role: 'user', content: input };
+    const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
-
-    // 追加机器人信息
-    const tempAIMessage = { id: generateUUID(), role: 'assistant', content: '', reasoning: '', isStop: false };
-    setMessages(prev => [...prev, tempAIMessage]);
-
-    try {
-      await fetchEventSource('/api/streamchat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: [...updatedMessages],
-          model: 'Pro/deepseek-ai/DeepSeek-R1'
-        }),
-        onmessage(event) {
-          setIsLoading(false);
-          try {
-            const data = JSON.parse(event.data);
-            setMessages(prev => {
-              const last = prev[prev.length - 1];
-              if (!last || last.role !== 'assistant') return prev;
-
-              return [...prev.slice(0, -1), {
-                ...last,
-                id: data.id || last.id,
-                content: last.content + (data.choices[0]?.delta?.content || ''),
-                reasoning: last.reasoning + (data.choices[0]?.delta?.reasoning_content || ''),
-                isStop: data.choices[0]?.finish_reason === 'stop'
-              }];
-            });
-          } catch (e) {
-            console.error('消息处理错误:', e);
-          }
-        },
-        onclose() {
-          setMessages(prev => {
-            const last = prev[prev.length - 1];
-            if (last?.role === 'assistant') {
-              return [...prev.slice(0, -1), {
-                ...last,
-                isStop: true
-              }];
-            }
-            return prev;
-          });
-          setIsLoading(false);
-        },
-        onerror(err) {
-          console.error('EventSource 错误:', err);
-          setMessages(prev => {
-            const last = prev[prev.length - 1];
-            if (last?.role === 'assistant' && !last.isStop) {
-              return [...prev.slice(0, -1), {
-                ...last,
-                content: last.content + '\n\n[连接中断，请重试]',
-                isStop: true
-              }];
-            }
-            return prev;
-          });
-          setIsLoading(false);
-          throw err;
-        }
-      });
-    } catch (error) {
-      console.error('连接错误:', error);
-    } finally {
-      setIsLoading(false);
-      setInput('');
-    }
+    
+    // 清空输入框
+    setInput('');
+    
+    // 使用 hook 处理流式请求
+    await streamChat(updatedMessages, 'Pro/deepseek-ai/DeepSeek-R1', setMessages);
   };
 
   return (
@@ -137,10 +68,23 @@ function Chat() {
                               <Loading />
                             ) : (
                               <Fragment>
-                                <div className="bg-gray-200 p-2 rounded-lg mb-2">
-                                  { message.reasoning }
-                                </div>
-                                { message.content }
+                                {
+                                  message.reasoning && (
+                                    <div
+                                      className={cn(
+                                        ' p-2 rounded-lg mb-2 text-sm leading-6 text-white',
+                                        'bg-gradient-to-tr from-blue-400 to-purple-400'
+                                      )}
+                                    >
+                                      { message.reasoning }
+                                    </div>
+                                  )
+                                }
+                                {
+                                  message.content && (
+                                    <Markdown>{ message.content }</Markdown>
+                                  )
+                                }
                               </Fragment>
                             )
                           }
