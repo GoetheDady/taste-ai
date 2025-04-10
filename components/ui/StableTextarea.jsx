@@ -21,7 +21,7 @@ export default function StableTextarea(props) {
       ) : (
         <div
           style={{
-            minHeight: '42px',
+            minHeight: '46px',
             visibility: 'hidden'
           }}
           className={props.className}
