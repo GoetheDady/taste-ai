@@ -1,13 +1,21 @@
 'use client';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBrain } from '@fortawesome/free-solid-svg-icons';
+import { faAtom, faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '@/lib/utils';
 import StableTextarea from '@/components/ui/StableTextarea';
+import { Button } from '@/components/ui/button';
+import { Toggle } from '@/components/ui/toggle';
 
 export default function ChatClient() {
   const [isDeepThinking, setIsDeepThinking] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([{
+    role: 'user',
+    content: '你好，我是小明'
+  }, {
+    role: 'assistant',
+    content: '你好，我是一个AI助手。'
+  }]);
   const [input, setInput] = useState('');
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -29,12 +37,15 @@ export default function ChatClient() {
       {
         messages.length !== 0 && (
           <div
-            className="max-w-3xl mx-auto flex-1 w-full"
+            className="max-w-3xl mx-auto flex-1 w-full pt-4"
           >
             {
-              messages.map((message, index) => (
-                <div key={index} className="flex flex-col">
-                  <div className="text-sm text-gray-500">{message.role}</div>
+              messages.map((message, index) => message.role === 'assistant' ? (
+                <div key={index} className="flex flex-col max-w-3xl">
+                  <div className="text-base">{message.content}</div>
+                </div>
+              ): (
+                <div key={index} className="flex flex-col items-end max-w-3xl">
                   <div className="text-base">{message.content}</div>
                 </div>
               ))
@@ -62,13 +73,16 @@ export default function ChatClient() {
             onKeyDown={handleKeyDown}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="w-full resize-none px-4 py-2 focus-visible:outline-none text-base"
+            className="w-full resize-none px-4 py-4 focus-visible:outline-none text-base"
           />
-          <div className="w-full p-4">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon icon={faBrain} size="lg" />
+          <div className="w-full p-4 flex justify-between">
+            <Toggle variant="outline">
+              <FontAwesomeIcon icon={faAtom}/>
               深度思考
-            </div>
+            </Toggle>
+            <Button>
+              <FontAwesomeIcon icon={faPaperPlane}/>
+            </Button>
           </div>
         </div>
       </div>
