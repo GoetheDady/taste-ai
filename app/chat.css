@@ -1,6 +1,0 @@
-.animate-gradient {
-  background: linear-gradient(to right, #00b0f0, #9b59b6);
-  background-size: 400% 400%;
-  animation: gradient 5s ease infinite;
-}
-

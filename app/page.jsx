@@ -1,9 +1,7 @@
-import Chat from './Chat.client';
-
 export default function Home() {
   return (
     <div className="w-full h-full">
-      <Chat />
+      123
     </div>
   );
 }
