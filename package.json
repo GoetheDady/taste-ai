@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 8080 --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "format": "eslint --fix"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^0.2.9",
     "@ai-sdk/openai": "^1.3.3",
     "@ai-sdk/react": "^1.2.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
